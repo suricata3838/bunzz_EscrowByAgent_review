@@ -9,7 +9,7 @@ import "./interface/IEscrowByAgent.sol";
 contract EscrowByAgent is Ownable, ReentrancyGuard, IEscrowByAgent {
   using SafeERC20 for IERC20;
 
-  // TODO(Document): : Pool is one-time use, because isReleased is not swichable.
+  // TODO(Document): : Pool is one-time use, because isReleased is one-way boolean switch(false -> true).
   struct Pool {
     address token;
     address sender;
@@ -22,7 +22,7 @@ contract EscrowByAgent is Ownable, ReentrancyGuard, IEscrowByAgent {
 
   // TODO(Warning): Naming is not consistent with `approveCancel()`.
   // RefundStatus leads readers to misunderstand that the actor got refunded from pool.
-  // How about changing to  DidApproveCancel
+  // How about changing to  DidApproveCancel, or CancelApproveStatus
   // use struct to decrease storage size
   struct RefundStatus {
     bool sender;
@@ -42,8 +42,8 @@ contract EscrowByAgent is Ownable, ReentrancyGuard, IEscrowByAgent {
     _;
   }
 
-  // TODO(to fix): _cancelLockDays accepts 0. 
-  // Thus sender can retrieve pool's money beack to sender without receiver's acceptance.
+  // TODO(To fix: defect of incentive design): _cancelLockDays accepts 0. 
+  // Thus sender and agent can act in in collusion to retrieve pool's money beack to sender without receiver's acceptance.
   constructor(
     uint96 _feePercent,
     uint96 _agentFeePercent,
@@ -51,6 +51,7 @@ contract EscrowByAgent is Ownable, ReentrancyGuard, IEscrowByAgent {
   ) {
     require(_feePercent < 10000, "feePercent invalid");
     require(_agentFeePercent < 10000, "AgentFeePercent invalid");
+    // TODO: require(_cancelLockDays > 0, "cancelLockDays invalid");
     feePercent = _feePercent;
     agentFeePercent = _agentFeePercent;
     cancelLockTime = _cancelLockDays * 24 * 3600;
@@ -83,6 +84,8 @@ contract EscrowByAgent is Ownable, ReentrancyGuard, IEscrowByAgent {
     return _deposit(address(_token), msg.sender, _recipient, _agent, _amount);
   }
 
+  // Review: 
+  // @dev 1 Pool is created on deposit()
   function _deposit(
     address _token,
     address _sender,
@@ -90,6 +93,7 @@ contract EscrowByAgent is Ownable, ReentrancyGuard, IEscrowByAgent {
     address _agent,
     uint256 _amount
   ) internal returns (uint256) {
+    // Review: 3 patterns of 2 pairl: {_sender, _recipient, _agent}
     require(
       _sender != _recipient && _sender != _agent && _recipient != _agent,
       "address invalid: same"
@@ -119,7 +123,8 @@ contract EscrowByAgent is Ownable, ReentrancyGuard, IEscrowByAgent {
     return poolId;
   }
 
-  // Review: doing
+  // Review: 
+  // @dev onlyAgent can call this function.
   function release(
     uint256 _poolId
   ) external override onlyAgent(_poolId) nonReentrant returns (bool) {
@@ -152,7 +157,11 @@ contract EscrowByAgent is Ownable, ReentrancyGuard, IEscrowByAgent {
     return true;
   }
 
-  // Q: Does money back to the sender's wallet?
+  // Review: done
+  // Document: How to check cancelStatus? -> use cancelable()
+  // @dev executable condition:
+  //   Sender can execute with agent's acceptance(without recipient's acceptance).
+  //   Anyone can execute having both of sender's and agent's acceptance(without recipient's acceptance).
   function cancel(
     uint256 _poolId
   ) external override nonReentrant returns (bool) {
@@ -189,7 +198,7 @@ contract EscrowByAgent is Ownable, ReentrancyGuard, IEscrowByAgent {
     return true;
   }
 
-  // TODO: Review: both of 
+ // Review: done
   function approveCancel(uint256 _poolId) external override returns (bool) {
     require(_poolId < poolCount, "poolId invalid");
     Pool memory pool = pools[_poolId];
@@ -210,7 +219,10 @@ contract EscrowByAgent is Ownable, ReentrancyGuard, IEscrowByAgent {
     return true;
   }
 
-  // 
+  // Review: done
+  // TODO(Infromation): 
+  // @dev This function to check the status if cancel() is executable or not.
+  // copied the condition logic from cancel().
   function cancelable(uint256 _poolId) external view override returns (bool) {
     if (_poolId >= poolCount) return false;
 
@@ -225,16 +237,14 @@ contract EscrowByAgent is Ownable, ReentrancyGuard, IEscrowByAgent {
     Pool memory pool = pools[_poolId];
 
 
-    // TODO: Incentive: sender(want to cancel) vs recipient(don't want to cancel)
+    // Premise: Incentive: sender(want to cancel) vs recipient(don't want to cancel)
     // Is this condition covered all caseS?
     if (
       // 1. sender has to acceptCancel(sender must be true).
       (msg.sender != pool.sender && !refundStatus.sender) ||
 
-      // If cancelLockTime passes, case1{recipient:false, agent:true, sender: true} will pass.
-      // CAUTION: If cancelLockTime passes, the money of recipient is able to be canceled without recipient's acceptance.
-      // Example of collusion of sender and contract owner?
-      // What if the cancelLockTime is configured with 0? 
+      // 2. recipient's acceptance is no need if cancelLockTime passed.
+      // TODO: (to fix): block.time is different unit from unixtimestamp!
       (!refundStatus.recipient &&
         block.timestamp <= pool.createdAt + cancelLockTime) ||
       (pool.amount == 0 || pool.isReleased)
