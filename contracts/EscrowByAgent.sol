@@ -57,6 +57,7 @@ contract EscrowByAgent is Ownable, ReentrancyGuard, IEscrowByAgent {
     cancelLockTime = _cancelLockDays * 24 * 3600;
   }
 
+  // Reviewed: done
   function depositByETH(
     address _recipient,
     address _agent
@@ -66,6 +67,11 @@ contract EscrowByAgent is Ownable, ReentrancyGuard, IEscrowByAgent {
       _recipient != address(0x0) && _agent != address(0x0),
       "address invalid"
     );
+    // TODO(Critical): lack of the logic of ETH transfer
+    //  (bool res, ) = payable(address(this)).call{
+    //     value: msg.value
+    //  }("");
+    // require(res, "Failed to send Ether");
     return _deposit(address(0x0), msg.sender, _recipient, _agent, msg.value);
   }
 
