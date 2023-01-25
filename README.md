@@ -2,9 +2,8 @@
 
 |Target|Information|
 |---|---|
-|Module Name|EscrowByAgent
-Created by yano|
-|Module URL|[https://app.bunzz.dev/module-templates/4be22852-e07a-4ff7-ba24-96fa36599743)|
+|Module Name|EscrowByAgent Created by yano|
+|Module URL|[https://app.bunzz.dev/module-templates/4be22852-e07a-4ff7-ba24-96fa36599743](https://app.bunzz.dev/module-templates/4be22852-e07a-4ff7-ba24-96fa36599743)|
 |Reviewer|Norika Kizawa|
 |Date|25 Jun, 2023|
 |Approver|Yano, GK, Shota|
