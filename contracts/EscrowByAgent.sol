@@ -172,7 +172,6 @@ contract EscrowByAgent is Ownable, ReentrancyGuard, IEscrowByAgent {
     Pool memory pool = pools[_poolId];
 
     if (!refundStatus.recipient) {
-      // TODO(to fix): block.time is different unit from unixtimestamp!
       require(
         block.timestamp > pool.createdAt + cancelLockTime,
         "during cancelLock"
@@ -244,7 +243,6 @@ contract EscrowByAgent is Ownable, ReentrancyGuard, IEscrowByAgent {
       (msg.sender != pool.sender && !refundStatus.sender) ||
 
       // 2. recipient's acceptance is no need if cancelLockTime passed.
-      // TODO: (to fix): block.time is different unit from unixtimestamp!
       (!refundStatus.recipient &&
         block.timestamp <= pool.createdAt + cancelLockTime) ||
       (pool.amount == 0 || pool.isReleased)
