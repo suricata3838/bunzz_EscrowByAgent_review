@@ -16,11 +16,11 @@
     - get the payment passively from the contract.
 3. Agent:   
     - trigger the transfer of payment from Sender to Recipient.
-    - get the agent fee passively on each release is executed.
+    - get the agent fee passively on each payment transfer(`release()`) is executed.
 4. Contract deployer:   
     - deploy this module contract.
     - configure the fee percent to give to both of Agent and Contract owner.   
-    *CAUTION* : The gas fee to execute `release()` should be much cheaper than the Agent fee. Otherwise nobody won't become Agent because they would keep losing money!
+    *CAUTION* : The gas fee to execute payment transfer(`release()`) should be much cheaper than the Agent fee. Otherwise nobody won't become Agent because they would keep losing money!
 5. Contract owner:
    - get the owner fee passively on each release is executed. If Contract deployer won't transfer the ownership, deployer will be an owner.
 
@@ -31,7 +31,7 @@
 2. Recipient:   
     - Able to cancel to pay for themselves.
 3. Agent:    
-    - Control to execute `release()` function.
+    - Control to execute the payment transfer(`release()`).
     - Able to cancel to pay for Recipient.
 4. Contract deployer:   
     - control the agent fee percent and owner fee percent.
@@ -39,13 +39,20 @@
     - get the owner fee every time a `Pool` is released.
 
 
-## Consider scenarios
+## Consider incentive design and scenarios
 
-A. Collusion of Sender and Agent not to pay for Recipient
+A. Agent wont release the payment.
+- Recipient has to trust Agent to execute `release()`?
+    - what if Agent will never execute `release()`?
+    - Recipient can ask Sender to cancel the current Pool and star another deal?
 
-B. .....
+B. Collusion of Sender and Agent not to pay for Recipient
 
----
+C. What else?
+
+------
+
+<!-- 
 ## About
 > one line description ← What issue does this module solve?
 
@@ -78,3 +85,4 @@ TBD
 ---
 ## Review report
 - [Norika's report](https://github.com/suricata3838/bunzz-Vesting-module)
+-->
