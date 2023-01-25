@@ -1,13 +1,21 @@
-# Sample Hardhat Project
+# Review report
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+|Target|Information|
+|---|---|
+|Module Name|EscrowByAgent
+Created by yano|
+|Module URL|[https://app.bunzz.dev/module-templates/4be22852-e07a-4ff7-ba24-96fa36599743)|
+|Reviewer|Norika Kizawa|
+|Date|25 Jun, 2023|
+|Approver|Yano, GK, Shota|
+|Scope of review| [Documentation](./doc), [Contract](./contracts)|
 
-Try running some of the following tasks:
 
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.js
-```
+## Action Items
+
+### Specification
+- [ ] 1. Norika will check [the current spec](./doc/Specification.md) is correct to Yano san.
+
+### Contract code
+
+- [ ] 1. Norika will ask Yano san to fix or discuss the issues.
