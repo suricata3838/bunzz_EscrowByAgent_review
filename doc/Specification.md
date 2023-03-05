@@ -8,7 +8,7 @@
 4. Contract deployer: to deploy this module contract. Same with the Contract owner if any `transferOwnership()` is not executed.
 5. Contract owner: to have an access to execute `transferOwnership()`/`revokeOwnership()`. 
 
-### Actor's activity on the process
+### Actor's operation
 
 1. Sender:   
     - deposit the payment for Recipient to the contract, in order to prove Sender's commitment to pay the exact amount of money to Recipient under a certain condition.
